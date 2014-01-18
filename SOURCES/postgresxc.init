@@ -1,0 +1,357 @@
+#!/bin/sh
+#
+# postgresxc    This is the init script for starting up the Postgres-XC
+#               server.
+#
+# chkconfig: - 64 36
+# description: Postgres-XC database server.
+# processname: postmaster
+# pidfile="/var/run/${NAME}.pid"
+
+# This script is slightly unusual in that the name of the daemon (postmaster)
+# is not the same as the name of the subsystem (postgresxc)
+
+# Version 1.1. David Wheeler <david@justatheory.com>
+# Based on Postgres-XC script by Devrim Gunduz <devrim@gunduz.org>.
+
+# PGXCVERSION is the full package version, e.g., 1.1.0
+# Note: the specfile inserts the correct value during package build
+PGXCVERSION=xxxx
+# PGXCMAJORVERSION is major version, e.g., 1.1 (this should match PGXC_VERSION)
+PGXCMAJORVERSION=`echo "$PGXCVERSION" | sed 's/^\([0-9]*\.[0-9]*\).*$/\1/'`
+PGXCPREVMAJORVERSION=9.2
+
+# Source function library.
+INITD=/etc/rc.d/init.d
+. $INITD/functions
+
+# Get function listing for cross-distribution logic.
+TYPESET=`typeset -f|grep "declare"`
+
+# Get network config.
+. /etc/sysconfig/network
+
+# Find the name of the script
+NAME=`basename $0`
+if [ ${NAME:0:1} = "S" -o ${NAME:0:1} = "K" ]
+then
+	NAME=${NAME:3}
+fi
+
+# For SELinux we need to use 'runuser' not 'su'
+if [ -x /sbin/runuser ]
+then
+    SU=runuser
+else
+    SU=su
+fi
+
+# Define variable for locale parameter:
+LOCALEPARAMETER=$2
+
+# Set defaults for configuration variables
+PGXCENGINE=/usr/pgxc-1.1/bin
+PGXCPORT=5432
+PGXCDATA=/var/lib/pgxc/1.1/data
+PGXCLOG=/var/lib/pgxc/1.1/pgstartup.log
+# Log file for pg_upgrade
+PGXCUPLOG=/var/lib/pgxc/$PGXCMAJORVERSION/pgupgrade.log
+
+lockfile="/var/lock/subsys/${NAME}"
+pidfile="/var/run/${NAME}.pid"
+
+# Override defaults from /etc/sysconfig/pgsql if file is present
+[ -f /etc/sysconfig/pgsql/${NAME} ] && . /etc/sysconfig/pgsql/${NAME}
+
+export PGXCDATA
+export PGXCPORT
+
+[ -f "$PGXCENGINE/postmaster" ] || exit 1
+
+script_result=0
+
+start(){
+	[ -x "$PGXCENGINE/postmaster" ] || exit 5
+
+	PSQL_START=$"Starting ${NAME} service: "
+
+	# Make sure startup-time log file is valid
+	if [ ! -e "$PGXCLOG" -a ! -h "$PGXCLOG" ]
+	then
+		touch "$PGXCLOG" || exit 1
+		chown postgres:postgres "$PGXCLOG"
+		chmod go-rwx "$PGXCLOG"
+		[ -x /sbin/restorecon ] && /sbin/restorecon "$PGXCLOG"
+	fi
+
+	# Check for the PGXCDATA structure
+	if [ -f "$PGXCDATA/PGXC_VERSION" ] && [ -d "$PGXCDATA/base" ]
+	then
+		# Check version of existing PGXCDATA
+
+		if [ x`cat "$PGXCDATA/PGXC_VERSION"` != x"$PGXCMAJORVERSION" ]
+		then
+			SYSDOCDIR="(Your System's documentation directory)"
+			if [ -d "/usr/doc/postgresxc-$PGXCVERSION" ]
+			then
+				SYSDOCDIR=/usr/doc
+			fi
+			if [ -d "/usr/share/doc/postgresxc-$PGXCVERSION" ]
+			then
+				SYSDOCDIR=/usr/share/doc
+			fi
+			if [ -d "/usr/doc/packages/postgresxc-$PGXCVERSION" ]
+			then
+				SYSDOCDIR=/usr/doc/packages
+			fi
+			if [ -d "/usr/share/doc/packages/postgresxc-$PGXCVERSION" ]
+			then
+				SYSDOCDIR=/usr/share/doc/packages
+			fi
+			echo
+			echo $"An old version of the database format was found."
+			echo $"You need to upgrade the data format before using Postgres-XC."
+#			echo $"See $SYSDOCDIR/postgresxc-$PGXCVERSION/README.rpm-dist for more information."
+			exit 1
+		fi
+	else
+		# No existing PGXCDATA! Warn the user to initdb it.
+
+		echo
+		echo "$PGXCDATA is missing. Use \"service $NAME initdb\" to initialize the cluster first."
+		echo_failure
+		echo
+		exit 1
+ 	fi
+
+	echo -n "$PSQL_START"
+	$SU -l postgres -c "$PGXCENGINE/postmaster -p '$PGXCPORT' -D '$PGXCDATA' ${PGXCOPTS} &" >> "$PGXCLOG" 2>&1 < /dev/null
+	sleep 2
+	pid=`head -n 1 "$PGXCDATA/postmaster.pid" 2>/dev/null`
+	if [ "x$pid" != x ]
+	then
+		success "$PSQL_START"
+		touch "$lockfile"
+		echo $pid > "$pidfile"
+		echo
+	else
+		failure "$PSQL_START"
+		echo
+		script_result=1
+	fi
+}
+
+stop(){
+	echo -n $"Stopping ${NAME} service: "
+	if [ -e "$lockfile" ]
+	then
+		$SU -l postgres -c "$PGXCENGINE/pg_ctl stop -D '$PGXCDATA' -s -m fast" > /dev/null 2>&1 < /dev/null
+		ret=$? 
+		if [ $ret -eq 0 ]
+		then
+			echo_success
+			rm -f "$pidfile"
+			rm -f "$lockfile"
+		else
+			echo_failure
+			script_result=1
+		fi
+		else
+			# not running; per LSB standards this is "ok"	
+			echo_success
+		fi
+		echo
+}
+
+restart(){
+    stop
+    start
+}
+
+initdb(){
+			# If the locale name is specified just after the initdb parameter, use it:
+			if [ -z $LOCALEPARAMETER ]
+			then
+				LOCALE=`echo $LANG`
+			else
+				LOCALE=`echo $LOCALEPARAMETER`
+			fi
+				LOCALESTRING="--locale=$LOCALE"
+
+		if [ -f "$PGXCDATA/PGXC_VERSION" ]
+		then
+			echo "Data directory is not empty!"
+			echo_failure
+		else
+			echo -n $"Initializing database: "
+			if [ ! -e "$PGXCDATA" -a ! -h "$PGXCDATA" ]
+			then
+				mkdir -p "$PGXCDATA" || exit 1
+				chown postgres:postgres "$PGXCDATA"
+				chmod go-rwx "$PGXCDATA"
+			fi
+			# Clean up SELinux tagging for PGXCDATA
+			[ -x /sbin/restorecon ] && /sbin/restorecon "$PGXCDATA"
+
+			# Make sure the startup-time log file is OK, too
+			if [ ! -e "$PGXCLOG" -a ! -h "$PGXCLOG" ]
+			then
+				touch "$PGXCLOG" || exit 1
+				chown postgres:postgres "$PGXCLOG"
+				chmod go-rwx "$PGXCLOG"
+				[ -x /sbin/restorecon ] && /sbin/restorecon "$PGXCLOG"
+			fi
+
+			# Initialize the database
+			$SU -l postgres -c "$PGXCENGINE/initdb --pgdata='$PGXCDATA' --auth='ident' $LOCALESTRING" >> "$PGXCLOG" 2>&1 < /dev/null
+
+			# Create directory for postmaster log
+			mkdir "$PGXCDATA/pg_log"
+			chown postgres:postgres "$PGXCDATA/pg_log"
+			chmod go-rwx "$PGXCDATA/pg_log"
+
+			[ -f "$PGXCDATA/PGXC_VERSION" ] && echo_success
+			[ ! -f "$PGXCDATA/PGXC_VERSION" ] && echo_failure
+			echo
+		fi
+}
+
+upgrade(){
+
+# The second parameter is the new database version, i.e. $PGXCMAJORVERSION in this case.
+# Use  "postgresxc-$PGXCMAJORVERSION" service, if not specified.
+INIT_SCRIPT="$2"
+if [ x"$INIT_SCRIPT" = x ]
+then
+    INIT_SCRIPT=postgresxc-$PGXCMAJORVERSION
+fi
+
+# The third parameter is the old database version, i.e. $PGXCPREVMAJORVERSION in this case.
+# Use  "postgresxc-$PGXCPREVMAJORVERSION" service, if not specified.
+OLD_INIT_SCRIPT="$3"
+if [ x"$OLD_INIT_SCRIPT" = x ]
+then
+    OLD_INIT_SCRIPT=postgresxc-$PGXCPREVMAJORVERSION
+fi
+
+# Find the init script of the new version:
+if [ ! -f "/etc/init.d/${INIT_SCRIPT}" ]
+then
+ 	echo "Could not find init script /etc/init.d/${INIT_SCRIPT}"
+fi
+
+# Find the init script of the old version
+if [ ! -f "/etc/init.d/${OLD_INIT_SCRIPT}" ]
+then
+	echo "Could not find init script /etc/init.d/${OLD_INIT_SCRIPT}"
+	echo "Please install postgresxc91-server RPM first."
+	exit
+fi
+
+# Get port number and data directory of the old instance from the init script
+OLDPGXCDATA=` sed -n 's/^PGXCDATA=//p' /etc/init.d/postgresxc-$PGXCPREVMAJORVERSION`
+OLDPGXCPORT=`sed -n 's/^PGXCPORT=//p' /etc/init.d/postgresxc-$PGXCPREVMAJORVERSION`
+
+# Get port number and data directory of the new instance from the init script
+NEWPGXCDATA=` sed -n 's/^PGXCDATA=//p' /etc/init.d/postgresxc-$PGXCMAJORVERSION`
+NEWPGXCPORT=`sed -n 's/^PGXCPORT=//p' /etc/init.d/postgresxc-$PGXCMAJORVERSION`
+
+if [ ! -x "$PGXCENGINE/pg_upgrade" ]
+    then
+	echo
+	echo $"Please install the postgresxc92-contrib RPM for pg_upgrade command."
+	echo
+        exit 5
+fi
+
+# Perform initdb on the new server
+/sbin/service $NAME initdb
+RETVAL=$?
+if [ $RETVAL -ne 0 ]
+  then
+	echo "initdb failed!"
+	exit 1
+fi
+
+# Check the clusters first, without changing any data:
+su -l postgres -c "$PGXCENGINE/pg_upgrade -b /usr/pgsql-$PGXCPREVMAJORVERSION/bin/ -B $PGXCENGINE/ -d $OLDPGXCDATA -D $NEWPGXCDATA -p $OLDPGXCPORT -P $NEWPGXCPORT -c"
+RETVAL=$?
+if [ $RETVAL -eq 0 ]
+  then
+	echo "Clusters checked successfully, proceeding with upgrade from $PGXCPREVMAJORVERSION to $PGXCMAJORVERSION"
+	echo "Stopping old cluster"
+	/sbin/service $OLD_INIT_SCRIPT stop
+
+	# Set up log file for pg_upgrade
+	rm -f "$PGXCUPLOG"
+	touch "$PGXCUPLOG" || exit 1
+	chown postgres:postgres "$PGXCUPLOG"
+	chmod go-rwx "$PGXCUPLOG"
+	[ -x /sbin/restorecon ] && /sbin/restorecon "$PGXCUPLOG"
+
+	echo "Performing upgrade"
+	su -l postgres -c "$PGXCENGINE/pg_upgrade \
+		-b /usr/pgsql-$PGXCPREVMAJORVERSION/bin/ -B $PGXCENGINE/ \
+		-d $OLDPGXCDATA -D $NEWPGXCDATA \
+		-p $OLDPGXCPORT -P $NEWPGXCPORT" >> "$PGXCUPLOG" 2>&1 < /dev/null
+  else
+	echo "Cluster check failed. Please see the output above."
+	exit 1
+fi
+	echo
+
+exit 0
+}
+
+
+condrestart(){
+	[ -e "$lockfile" ] && restart || :
+}
+
+reload(){
+    $SU -l postgres -c "$PGXCENGINE/pg_ctl reload -D '$PGXCDATA' -s" > /dev/null 2>&1 < /dev/null
+}
+
+promote(){
+    $SU -l postgres -c "$PGXCENGINE/pg_ctl promote -D '$PGXCDATA' -s" > /dev/null 2>&1 < /dev/null
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+	status -p $pidfile $NAME
+	script_result=$?
+	;;
+  restart)
+	restart
+	;;
+  initdb)
+	initdb
+	;;
+  promote)
+	promote
+	;;
+  upgrade)
+	upgrade
+	;;
+  condrestart|try-restart)
+	condrestart
+	;;
+  reload)
+	reload
+	;;
+  force-reload)
+	restart
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|restart|upgrade|condrestart|try-restart|reload|force-reload|initdb|promote}"
+	exit 2
+esac
+
+exit $script_result
