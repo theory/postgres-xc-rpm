@@ -10,8 +10,8 @@
 %define oname postgresxc
 %define sname pgxc
 %define	pgbaseinstdir	/usr/%{sname}-%{majorversion}
-%define user  postgres
-%define group postgres
+%define uname  postgres
+%define gname postgres
 %define gid   26
 %define uid   26
 
@@ -491,11 +491,11 @@ cat initdb-%{pgmajorversion}.lang pg_ctl-%{pgmajorversion}.lang psql-%{pgmajorve
 cat postgres-%{pgmajorversion}.lang pg_resetxlog-%{pgmajorversion}.lang pg_controldata-%{pgmajorversion}.lang plpgsql-%{pgmajorversion}.lang > pg_server.lst
 
 %pre server
-%{_sbindir}/groupadd -g %{gid} %{group} >/dev/null 2>&1 || :
-%{_sbindir}/useradd -M -N -g %{group} -d %{prefix}/%{name} \
-    -c "Postgres-XC Server" -u %{uid} %{user} >/dev/null 2>&1 || :
+%{_sbindir}/groupadd -g %{gid} %{gname} >/dev/null 2>&1 || :
+%{_sbindir}/useradd -M -N -g %{gname} -d %{prefix}/%{name} \
+    -c "Postgres-XC Server" -u %{uid} %{uname} >/dev/null 2>&1 || :
 touch /var/log/%{sname}
-chown %{user}:%{group} /var/log/%{sname}
+chown %{uname}:%{gname} /var/log/%{sname}
 chmod 0700 /var/log/%{sname}
 
 %post server
@@ -507,7 +507,7 @@ chkconfig --add %{oname}-%{majorversion}
 echo "[ -f /etc/profile ] && source /etc/profile
 PGDATA=/var/lib/%{sname}/%{majorversion}/data
 export PGDATA" >  /var/lib/%{sname}/.bash_profile
-chown %{user}: /var/lib/%{sname}/.bash_profile
+chown %{uname}: /var/lib/%{sname}/.bash_profile
 
 %preun server
 if [ $1 = 0 ] ; then
@@ -538,7 +538,7 @@ fi
 
 %if %test
 %post test
-chown -R %{user}:%{group} /usr/share/%{sname}/test >/dev/null 2>&1 || :
+chown -R %{uname}:%{gname} /usr/share/%{sname}/test >/dev/null 2>&1 || :
 %endif
 
 # Create alternatives entries for common binaries and man files
