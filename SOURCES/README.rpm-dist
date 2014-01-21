@@ -1,13 +1,13 @@
 README.rpm-dist
 -----------------------------------------------------------------------------
-Version 9.3, for the PostgreSQL 9.3 RPM set.
-Devrim Gündüz <devrim@gunduz.org>
+Version 1.1, for the Postgre-XC 1.1 RPM set.
+David Wheeler <david@justatheory.com>
 -----------------------------------------------------------------------------
 
 Contents:
  1.)	Introduction and QuickStart
  2.)	Upgrading an installation
- 3.)	PostgreSQL RPM packages and rationale
+ 3.)	Postgres-XC RPM packages and rationale
  4.)	Starting multiple postmasters
  5.)	Regression Testing
  6.)	Starting postmaster automatically on startup
@@ -19,50 +19,44 @@ Contents:
 
 INTRODUCTION
 -----------------------------------------------------------------------------
-This document exists to explain the layout of the RPMs for PostgreSQL, to 
+This document exists to explain the layout of the RPMs for Postgres-XC, to 
 describe various RPM specifics, and to document special features found
 in the RPMset.
 
-This document is written to be applicable to version 9.3 of PostgreSQL,
+This document is written to be applicable to version 1.1 of Postgres-XC,
 which is the current version of the RPMs as of this writing. More to the 
-point, versions prior to 9.3 are not documented here.
+point, versions prior to 1.1 are not documented here.
 
-Official PostgreSQL Global Development Group RPMs carry a 'PGDG after the
-release number.  Other RPMsets as distributed with Linux distributions may
-have a different release number and initials.
+Postgres RPMs carry a "PGDG" after the release number. Other RPMsets as
+distributed with Linux distributions may have a different release number
+and initials.
 
-If you want to stay up-to-date on the PostgreSQL core itself, you may
+If you want to stay up-to-date on the Postgres-XC core itself, you may
 want to use PGDG set, instead of the binaries supplied by distribution.
 
 These RPMs do not support any sort of major version upgrading process
 other than that documented in the regular documentation.  That is, you
-must dump, upgrade,initdb, and restore your data if you are
+must dump, upgrade, initdb, and restore your data if you are
 performing a major version update. This is not needed for minor version
 updates.
 
-QUICKSTART (note that this requires postgresql93-server installed)
+QUICKSTART (note that this requires postgresxc11-server installed)
 -----------------------------------------------------------------------------
 For a fresh installation, you will need to initialize the cluster first. Run:
 
-	/usr/pgsql-9.3/bin/postgresql93-setup initdb
+    service postgresxc-1.1 initbd
 
-as root, and it will prepare a new database cluster for you. Then you will 
-need to start PostgreSQL. Again as root, run:
+as root, and it will prepare a new data node cluster for you. Then you will 
+need to start Postgres-XC. Again as root, run:
 
-	systemctl start postgresql-9.3.service
+    service postgresxc-1.1 start
 
 This command will start a postmaster that willl listen on localhost and Unix 
-socket 5432 only.  Edit /var/lib/pgsql/9.3/data/postgresql.conf and pg_hba.conf 
+socket 5432 only.  Edit /var/lib/pgxc/1.1/data/postgresxc.conf and pg_hba.conf 
 if you want to allow remote access -- see the section on Grand Unified 
 Configuration.
 
-You will probably also want to do
-
-	systemctl enable postgresql-9.3.service
-
-so that the postmaster is automatically started during future reboots.
-
-The file /var/lib/pgsql/9.3/.bash_profile is packaged to help with the 
+The file /var/lib/pgxc/1.1/.bash_profile is packaged to help with the 
 setting of environment variables. You may edit this file, and it won't be
 overwritten during an upgrade.  However, enhancements and bugfixes may 
 be added to this file, so be sure to check .bash_profile.rpmnew after 
@@ -70,7 +64,7 @@ upgrading.
 
 The user 'postgres' is created during installation of the server subpackage.
 This user by default is UID and GID 26. The user has the default shell set to
-bash, and the home directory set to /var/lib/pgsql.  This user also has no
+bash, and the home directory set to /var/lib/pgxc.  This user also has no
 default password.  If you want to be able to su to it from a non-root account
 or login as 'postgres' you will need to set a password using passwd.
 
@@ -78,7 +72,7 @@ In the default installation, only postgres user is allowed to access to
 the database server, because initdb in the RPMs pick up "peer" auth 
 method in the RPMs. 
 
-All the binaries are installed under /usr/pgsql-9.3/bin. However, the 
+All the binaries are installed under /usr/pgxc-1.1/bin. However, the 
 tools that are compatible with the previous releases are symlinked under 
 /usr/bin directory. Please note that RPMs are using alternatives method 
 in here, so whenever a newer major version is installed, symlinks will 
@@ -98,67 +92,60 @@ are under $PATH:
 - psql
 - reindexdb
 
-You may want to add /usr/pgsql-9.3/bin to your $PATH variable in 
+You may want to add /usr/pgxc-1.1/bin to your $PATH variable in 
 /etc/profile, if you want to use them easily. However, please note that 
 this may lead to some unintentional side effects, so be careful.
 
 
 UPGRADING AN INSTALLATION
 -----------------------------------------------------------------------------
-For a minor-version upgrade (such as 9.3.1 to 9.3.2), just install the
+For a minor-version upgrade (such as 1.1.1 to 1.1.2), just install the
 new RPMs; there's usually nothing more to it than that.  Upgrading
-across a major release of PostgreSQL (for example, from 9.2.x to 9.3.x)
+across a major release of Postgres-XC (for example, from 1.1.x to 1.2.x)
 requires more effort.
 
-If you are upgrading across more than one major release of PostgreSQL
-(for example, from 9.1.x to 9.3.x), you will need to follow the "traditional"
-dump and reload process to bring your data into the new version.  That is:
-*before* upgrading, run pg_dumpall to extract all your data into a SQL file.
-Shut down the old postmaster, upgrade to the new version RPMs, initdb,
-and run the dump file through psql to restore your data.
+The RPMs also support in-place upgrade from th immediately previous major
+release. Currently, you can upgrade in-place from 1.1.x. Just run:
 
-In 9.1+, the RPMs also support in-place upgrade from th immediately 
-previous major release.  Currently, you can upgrade in-place
-from 9.2.x to 9.3.x.  Just run:
-$ /usr/pgsql-9.3/bin/postgresql93-setup upgrade
+    service postgresxc-1.1 upgrade
 
-Please note that 9.2 and 9.3 contrib RPMs needs	to be installed	for this 
-feature	to work.
+Please note that 1.1 and 1.2 contrib RPMs needs to be installed for this 
+feature to work.
 
-POSTGRESQL RPM PACKAGES AND RATIONALE.
+POSTGRESXC RPM PACKAGES AND RATIONALE.
 -----------------------------------------------------------------------------
-PostgreSQL is split up into multiple packages so that users can 'pick and
+Postgres-XC is split up into multiple packages so that users can 'pick and
 choose' what pieces are needed, and what dependencies are required.
 
 The RPMset is packaged in the following subpackages:
 
-postgresql93:           Key clients and libraries, and documentation
-postgresql93-server:    Server executables and data files
-postgresql93-devel:     Development libraries and include files
-postgresql93-test:	The regression tests and associated files
-postgresql93-libs:      Client shared libraries
-postgresql93-docs:	Extra documentation, such as the tutorial files
-postgresql93-contrib:   The contrib source tree, as well as selected binaries
-postgresql93-plperl:    PL/Perl procedural language
-postgresql93-plpython:  PL/Python procedural language
-postgresql93-pltcl:     PL/Tcl procedural language
+postgresxc11:           Key clients and libraries, and documentation
+postgresxc11-server:    Server executables and data files
+postgresxc11-devel:     Development libraries and include files
+postgresxc11-test:	The regression tests and associated files
+postgresxc11-libs:      Client shared libraries
+postgresxc11-docs:	Extra documentation, such as the tutorial files
+postgresxc11-contrib:   The contrib source tree, as well as selected binaries
+postgresxc11-plperl:    PL/Perl procedural language
+postgresxc11-plpython:  PL/Python procedural language
+postgresxc11-pltcl:     PL/Tcl procedural language
 
-postgresql93-jdbc, postgresql93-python, postgresql93-tcl and postgresql93-odbc have
+postgresxc11-jdbc, postgresxc11-python, postgresxc11-tcl and postgresxc11-odbc have
 been splitted into  seperate (s)rpms.
 
-You have to install postgresql and postgresql93-libs to do anything.
-postgresql93-server is needed unless you only plan to use the clients to work
-with a remote PostgreSQL server. The others are optional.
+You have to install postgresxc and postgresxc11-libs to do anything.
+postgresxc11-server is needed unless you only plan to use the clients to work
+with a remote Postgres-XC server. The others are optional.
 
-postgresql93-python package includes PyGreSQL, and Pgtcl is distributed
-via postgresql93-tcl package.
+postgresxc11-python package includes PyGreSQL, and Pgtcl is distributed
+via postgresxc11-tcl package.
 
 RPM FILE LOCATIONS.
 -----------------------------------------------------------------------------
-To be in compliance with the Linux FHS, the PostgreSQL RPMs install files in
-a manner not consistent with most of the PostgreSQL documentation.  According
-to the standard PostgreSQL documentation, PostgreSQL is installed under the
-directory /usr/local/pgsql, with executables, source, and data existing in
+To be in compliance with the Linux FHS, the Postgres-XC RPMs install files in
+a manner not consistent with most of the Postgres-XC documentation.  According
+to the standard Postgres-XC documentation, Postgres-XC is installed under the
+directory /usr/local/pgxc, with executables, source, and data existing in
 various subdirectories.
 
 Different distributions have different ideas of some of these file locations.
@@ -168,18 +155,18 @@ In particular, the documentation directory can be /usr/doc, /usr/doc/packages,
 However, the Red Hat / Scientific Linux ( CentOS / Fedora RPM's install 
 the files like this:
 
-Executables:		/usr/bin and /usr/pgsql-9.3/bin
-Libraries:		/usr/pgsql-9.3/lib
-Documentation:		/usr/pgsql-9.3/doc
-Contrib documentation:	/usr/pgsql-9.3/doc
+Executables:		/usr/bin and /usr/pgxc-1.1/bin
+Libraries:		/usr/pgxc-1.1/lib
+Documentation:		/usr/pgxc-1.1/doc
+Contrib documentation:	/usr/pgxc-1.1/doc
 Source:			not installed
-Data:			/var/lib/pgsql/9.3/data
-Backup area:		/var/lib/pgsql/9.3/backups
-Templates:		/usr/pgsql-9.3/share
-Procedural Languages:	/usr/pgsql-9.3/lib
-Development Headers:	/usr/pgsql-9.3/include
-Other shared data:	/usr/pgsql-9.3/share
-Regression tests:	/usr/pgsql-9.3/lib/test
+Data:			/var/lib/pgxc/1.1/data
+Backup area:		/var/lib/pgxc/1.1/backups
+Templates:		/usr/pgxc-1.1/share
+Procedural Languages:	/usr/pgxc-1.1/lib
+Development Headers:	/usr/pgxc-1.1/include
+Other shared data:	/usr/pgxc-1.1/share
+Regression tests:	/usr/pgxc-1.1/lib/test
 
 While it may seem gratuitous to place these files in different locations, the
 FHS requires it -- distributions should not ever touch /usr/local.  It may
@@ -188,13 +175,13 @@ the beauty of RPM -- you don't have to keep track of the files, RPM does it
 for you.
 
 These RPMs are designed to be LSB-compliant -- if you find this not to be the
-case, please let us know by way of the pgsql-pkg-yum@postgresql.org
+case, please let us know by way of the pgxc-pkg-yum@postgresxc.org
 mailing list.
 
 -------------------------------------------------------------------------------
-MULTIPLE POSTMASTERS (For the same PostgreSQL version)
+MULTIPLE POSTMASTERS (For the same Postgres-XC version)
 -------------------------------------------------------------------------------
-The postgresql-server RPM contains an 'initscript' that is used to start the
+The postgresxc-server RPM contains an 'initscript' that is used to start the
 postmaster.  The current version of this script has logic to be able to start
 multiple postmasters, with different data areas, listening on different ports,
 etc.  To use this functionality requires root access.
@@ -202,46 +189,46 @@ etc.  To use this functionality requires root access.
 As an example, let us create a secondary postmaster called, creatively enough,
 'secondary'.  Here are the steps:
 1.)     create a hard link in /etc/rc.d/init.d (or equivalent location)
-        to postgresql-9.3 named 'secondary-9.3' : ln postgresql secondary   Pick
+        to postgresxc-1.1 named 'secondary-1.1' : ln postgresxc secondary   Pick
         a name not already used in /etc/rc.d/init.d!
-2.)     create a file in /etc/sysconfig/pgsql named secondary.  This file is
-        a shell script -- typically you would define PGDATA, PGPORT, and PGOPTS
-        here.  Since $PGDATA/postgresql.conf will override many of these
-        settings, except PGDATA, you might be surprised on startup.
+2.)     create a file in /etc/sysconfig/pgxc named secondary.  This file is
+        a shell script -- typically you would define PGDATA, PGPORT, NODEROLE,
+        and PGOPTS here. Since $PGDATA/postgresxc.conf will override many of
+        these settings, except PGDATA, you might be surprised on startup.
 3.)     create the target PGDATA.
 4.)     Initdb the targe PGDATA as documented in the main documentation.
         Automatic initdb may or may not work for you, so a manual one is
         preferred.  This must be done as user 'postgres'
-5.)     Edit postgresql.conf to change the port, address, tcpip settings, etc.
-6.)     Start the postmaster with 'service secondary-9.3 start'.
+5.)     Edit postgresxc.conf to change the port, address, tcpip settings, etc.
+6.)     Start the postmaster with 'service secondary-1.1 start'.
 
 Note that there may be problems with the standard symlink -- consider this
 support experimental at this point in time.
 
 When doing a major-version upgrade of a secondary postmaster, mention the
-service name in the postgresql-setup command, for example 'postgresql-setup
-upgrade secondary'.  This will let postgresql-setup find the correct data
+service name in the postgresxc-setup command, for example 'postgresxc-setup
+upgrade secondary'.  This will let postgresxc-setup find the correct data
 directory from the service file.
 
 REGRESSION TESTING
 -------------------------------------------------------------------------------
-If you install the postgresql-test RPM then you can run the PostgreSQL
+If you install the postgresxc-test RPM then you can run the Postgres-XC
 regression tests.  These tests stress your database installation and produce
 results that give you assurances that the installation is complete, and that
 your database machine is up to the task.
 
 To run the regression tests under the RPM installation, make sure that the
 postmaster has been started (if not, su to root and do "systemctl start
-postgresql-9.3.service"), cd to /usr/pgsql-9.3/lib/test/regress, su to 
+postgresxc-1.1.service"), cd to /usr/pgxc-1.1/lib/test/regress, su to 
 postgres, and execute "make check". This command will start the 
 regression tests and will both show the results to the screen and store 
 the results in the file regress.out.
 
 If any tests fail, see the file regression.diffs in that directory for details,
-and read the "Regression Tests" section of the PostgreSQL documentation to
+and read the "Regression Tests" section of the Postgres-XC documentation to
 find out whether the differences are actually significant.  If you need help
-interpreting the results, contact the pgsql-general list at 
-postgresql.org.
+interpreting the results, contact the pgxc-general list at 
+postgresxc.org.
 
 After testing, say "make clean" to remove the files generated by the test
 script.
@@ -249,30 +236,30 @@ script.
 STARTING POSTMASTER AUTOMATICALLY AT SYSTEM STARTUP
 -------------------------------------------------------------------------------
 Fedora / Red Hat / CentOS use the systemd package to manage server startup.
-A systemd unit file for PostgreSQL is provided in the server package, as
-/lib/systemd/system/postgresql-9.3.service.  To start the postmaster manually,
+A systemd unit file for Postgres-XC is provided in the server package, as
+/lib/systemd/system/postgresxc-1.1.service.  To start the postmaster manually,
 as root run
-	systemctl start postgresql-9.3.service
+	systemctl start postgresxc-1.1.service
 To shut the postmaster down,
-	systemctl stop postgresql-9.3.service
+	systemctl stop postgresxc-1.1.service
 These two commands only change the postmaster's current status.  If you
 want the postmaster to be started automatically during future system startups,
 run
-	systemctl enable postgresql-9.3.service
+	systemctl enable postgresxc-1.1.service
 To undo that again,
-	systemctl disable postgresql-9.3.service
+	systemctl disable postgresxc-1.1.service
 See "man systemctl" for other possible subcommands.
 
 GRAND UNIFIED CONFIGURATION (GUC) FILE
 -------------------------------------------------------------------------------
-The PostgreSQL server has many tunable parameters -- the file 
-/var/lib/pgsql/9.3/data/postgresql.conf is the master configuration file for the
+The Postgres-XC server has many tunable parameters -- the file 
+/var/lib/pgxc/1.1/data/postgresxc.conf is the master configuration file for the
 whole system.  
 
 The RPM ships with a mostly-default file -- you will need to tune the
 parameters for your installation.  In particular, you might want to allow
 nonlocal TCP/IP socket connections -- in order to allow these, you will need
-to edit the postgresql.conf file.  The line in question contains the string 
+to edit the postgresxc.conf file.  The line in question contains the string 
 'listen_addresses' -- you need to both uncomment the line and set the value
 to '*' to get the postmaster to accept nonlocal connections.  You'll also need
 to adjust pg_hba.conf appropriately.
@@ -280,13 +267,13 @@ to adjust pg_hba.conf appropriately.
 LOGGING SET UP
 -------------------------------------------------------------------------------
 By default, the postmaster's stderr log is directed into files placed in a
-pg_log subdirectory of the data directory (ie, /var/lib/pgsql/9.3/data/pg_log).
+pg_log subdirectory of the data directory (ie, /var/lib/pgxc/1.1/data/pg_log).
 The out-of-the-box configuration rotates among seven files, one for each
-day of the week.  You can adjust this by changing postgresql.conf settings.
+day of the week.  You can adjust this by changing postgresxc.conf settings.
 
 REBUILDING FROM SOURCE RPM
 -------------------------------------------------------------------------------
-If your distribution is not supported by the binary RPMs from PostgreSQL.org, 
+If your distribution is not supported by the binary RPMs from Postgres-XC.org, 
 you will need to rebuild from the source RPM.  Download the .src.rpm for this
 release.  You will need to be root to rebuild, unless you have set up
 a non-root build environment (which is the recommended method anyway).
@@ -299,9 +286,9 @@ This release of the RPMset includes the ability to conditionally build
 sets of packages.  The parameters, their defaults, and the meanings are:
 
 beta		0	#build with cassert and do not strip the binaries
-python		1	#build the postgresql-python package.
-tcl		1	#build the postgresql-tcl package.
-test		1	#build the postgresql-test package.
+python		1	#build the postgresxc-python package.
+tcl		1	#build the postgresxc-tcl package.
+test		1	#build the postgresxc-test package.
 plpython	1	#build the PL/Python procedural language package.
 pltcl		1	#build the PL/Tcl procedural language package.
 plperl		1	#build the PL/Perl procedural language package.
@@ -319,12 +306,12 @@ uuid		1	#build contrib/uuid-ossp
 To use these defines, invoke a rebuild like this:
 rpmbuild --rebuild --define 'python 0' --define 'tcl 0' \
 	--define 'test 0' --define 'runselftest 0' --define 'kerberos 0' \
-	postgresql93-9.3.1-1PGDG.f17.src.rpm
+	postgresxc11-1.1.1-1PGDG.f17.src.rpm
 This line would disable the python, tcl, and test subpackages, disable 
 the regression test run during build, and disable kerberos support.
 
 You might need to disable runselftest if there is an installed version of
-PostgreSQL that is a different major version from what you are trying to
+Postgres-XC that is a different major version from what you are trying to
 build.  The self test tends to pick up the installed libpq.so shared library
 in place of the one being built :-(, so if that isn't compatible the test will
 fail. Also, you can't use runselftest when doing the build as root.
@@ -335,17 +322,17 @@ CONTRIB FILES
 -------------------------------------------------------------------------------
 The contents of the contrib tree are packaged into the -contrib subpackage
 and are processed with make and make install. Most of the modules are in 
-/usr/pgsql-9.3/lib for loadable modules, and binaries are in 
-/usr/pgsql-9.3/bin.  In the future these files may be split out, 
+/usr/pgxc-1.1/lib for loadable modules, and binaries are in 
+/usr/pgxc-1.1/bin.  In the future these files may be split out, 
 depending upon function and dependencies.
 
 
 MORE INFORMATION
 -------------------------------------------------------------------------------
-You can get more information at http://www.postgresql.org and 
-http://yum.postgresql.org
+You can get more information at http://www.postgresxc.org and 
+http://yum.postgresxc.org
 
 Please help make this packaging better -- let us know if you find problems, or
 better ways of doing things. You can reach us by e-mail at
-pgsql-pkg-yum@postgresql.org
+pgxc-pkg-yum@postgresxc.org
 -------------------------------------------------------------------------------

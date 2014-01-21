@@ -644,12 +644,6 @@ fi
 %{pgbaseinstdir}/bin/pg_test_fsync
 %{pgbaseinstdir}/bin/pg_receivexlog
 %{pgbaseinstdir}/bin/psql
-%{pgbaseinstdir}/bin/gtm
-%{pgbaseinstdir}/bin/gtm_ctl
-%{pgbaseinstdir}/bin/gtm_proxy
-%{pgbaseinstdir}/bin/initgtm
-%{pgbaseinstdir}/bin/makesgml
-%{pgbaseinstdir}/bin/pgxc_clean
 %{pgbaseinstdir}/bin/reindexdb
 %{pgbaseinstdir}/bin/vacuumdb
 %{pgbaseinstdir}/share/man/man1/clusterdb.*
@@ -812,6 +806,12 @@ fi
 %{pgbaseinstdir}/bin/pg_resetxlog
 %{pgbaseinstdir}/bin/postgres
 %{pgbaseinstdir}/bin/postmaster
+%{pgbaseinstdir}/bin/gtm
+%{pgbaseinstdir}/bin/gtm_ctl
+%{pgbaseinstdir}/bin/gtm_proxy
+%{pgbaseinstdir}/bin/initgtm
+%{pgbaseinstdir}/bin/makesgml
+%{pgbaseinstdir}/bin/pgxc_clean
 %{pgbaseinstdir}/share/man/man1/initdb.*
 %{pgbaseinstdir}/share/man/man1/pg_controldata.*
 %{pgbaseinstdir}/share/man/man1/pg_ctl.*
