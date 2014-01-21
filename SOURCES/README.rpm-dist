@@ -54,10 +54,14 @@ need to start Postgres-XC. Again as root, run:
 
     service postgresxc-1.1 start
 
-This command will start a postmaster that willl listen on localhost and Unix
-socket 5432 only.  Edit /var/lib/pgxc/1.1/data/postgresql.conf and pg_hba.conf
-if you want to allow remote access -- see the section on Grand Unified
-Configuration.
+This command will start a data node postmaster that willl listen on localhost
+and Unix socket 5432 only. Edit /var/lib/pgxc/1.1/data/postgresql.conf and
+pg_hba.conf if you want to allow remote access -- see the section on Grand
+Unified Configuration. Creat or edit /etc/sysconfig/pgxc/postgresxc to tweak
+the startup configuration, especially if you need to start a coordinator
+component than a data node:
+
+   PGCOMPONENT=coordinator
 
 The file /var/lib/pgxc/1.1/.bash_profile is packaged to help with the
 setting of environment variables. You may edit this file, and it won't be
