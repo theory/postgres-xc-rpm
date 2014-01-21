@@ -1,7 +1,10 @@
 README.rpm-dist
 -----------------------------------------------------------------------------
-Version 1.1, for the Postgre-XC 1.1 RPM set.
+Version 1.1, for the Postgres-XC 1.1 RPM set.
+
+Devrim Gündüz <devrim@gunduz.org>
 David Wheeler <david@justatheory.com>
+
 -----------------------------------------------------------------------------
 
 Contents:
@@ -180,29 +183,41 @@ postmaster.  The current version of this script has logic to be able to start
 multiple postmasters, with different data areas, listening on different ports,
 etc.  To use this functionality requires root access.
 
-As an example, let us create a secondary postmaster called, creatively enough,
-'secondary'.  Here are the steps:
-1.)     create a hard link in /etc/rc.d/init.d (or equivalent location)
-        to postgresxc-1.1 named 'secondary-1.1' : ln postgresxc secondary   Pick
-        a name not already used in /etc/rc.d/init.d!
-2.)     create a file in /etc/sysconfig/pgxc named secondary.  This file is
-        a shell script -- typically you would define PGDATA, PGPORT, NODEROLE,
-        and PGOPTS here. Since $PGDATA/postgresql.conf will override many of
-        these settings, except PGDATA, you might be surprised on startup.
+As an example, let us create a coordinator cluster called, creatively enough,
+'coordinator'. Here are the steps:
+
+1.)     Create a hard link in /etc/rc.d/init.d (or equivalent location)
+        to postgresxc-1.1 named 'coordinator-1.1' (or any other name not
+        already used in /etc/rc.d/init.d):
+
+            ln postgresxc-1.1 coordinator-1.1
+
+2.)     create a file in /etc/sysconfig/pgxc named coordinator. This file is a
+        shell script -- typically you would define PGDATA, PGPORT, PGOPTS, and
+        PGCOMPONENT here. Since $PGDATA/postgresql.conf will override many of
+        these settings, except PGDATA, you might be surprised on startup. The
+        exception is PGCOMPONENT, which, since we're setting up a coordinator,
+        should be set:
+
+            PGCOMPONENT=coordinator
+
 3.)     create the target PGDATA.
+
 4.)     Initdb the targe PGDATA as documented in the main documentation.
         Automatic initdb may or may not work for you, so a manual one is
         preferred.  This must be done as user 'postgres'
+
 5.)     Edit postgresql.conf to change the port, address, tcpip settings, etc.
-6.)     Start the postmaster with 'service secondary-1.1 start'.
+
+6.)     Start the postmaster with 'service coordinator-1.1 start'.
 
 Note that there may be problems with the standard symlink -- consider this
 support experimental at this point in time.
 
-When doing a major-version upgrade of a secondary postmaster, mention the
-service name in the postgresxc-setup command, for example 'postgresxc-setup
-upgrade secondary'.  This will let postgresxc-setup find the correct data
-directory from the service file.
+When doing a major-version upgrade of the coordinator, mention the service
+name in the postgresxc-setup command, for example 'postgresxc-setup upgrade
+coordinator'. This will let postgresxc-setup find the correct data directory
+from the service file.
 
 REGRESSION TESTING
 -------------------------------------------------------------------------------

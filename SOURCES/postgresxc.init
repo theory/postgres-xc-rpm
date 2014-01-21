@@ -59,8 +59,8 @@ PGLOG=/var/lib/pgxc/$PGMAJORVERSION/pgstartup.log
 PGUPLOG=/var/lib/pgxc/$PGMAJORVERSION/pgupgrade.log
 
 # This node's role
-NODEROLE=datanode
-#NODEROLR=coordinator
+PGCOMPONENT=datanode
+#PGCOMPONENT=coordinator
 
 lockfile="/var/lock/subsys/${NAME}"
 pidfile="/var/run/${NAME}.pid"
@@ -130,7 +130,7 @@ start(){
  	fi
 
 	echo -n "$PSQL_START"
-	$SU -l postgres -c "$PGENGINE/postmaster -p '$PGPORT' -D '$PGDATA' --$NODEROLE ${PGOPTS} &" >> "$PGLOG" 2>&1 < /dev/null
+	$SU -l postgres -c "$PGENGINE/postmaster -p '$PGPORT' -D '$PGDATA' --$PGCOMPONENT ${PGOPTS} &" >> "$PGLOG" 2>&1 < /dev/null
 	sleep 2
 	pid=`head -n 1 "$PGDATA/postmaster.pid" 2>/dev/null`
 	if [ "x$pid" != x ]
