@@ -32,7 +32,7 @@
 
 Summary:	Postgres-XC client programs and libraries
 Name:		%{oname}%{packageversion}
-Version:	%{majorversion}
+Version:	%{majorversion}.0
 Release:	1iov%{?dist}
 License:	PostgreSQL
 Group:		Applications/Databases
@@ -397,7 +397,7 @@ case `uname -i` in
 esac
 
 install -d %{buildroot}/etc/rc.d/init.d
-sed 's/^PGXCVERSION=.*$/PGXCVERSION=%{version}/' <%{SOURCE1} > %{oname}.init
+sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE1} > %{oname}.init
 install -m 755 %{oname}.init %{buildroot}/etc/rc.d/init.d/%{oname}-%{majorversion}
 
 %if %pam
