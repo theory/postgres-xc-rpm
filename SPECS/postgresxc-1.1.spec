@@ -397,7 +397,7 @@ case `uname -i` in
 esac
 
 install -d %{buildroot}/etc/rc.d/init.d
-sed 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE1} > %{oname}.init
+sed -e 's/^PGVERSION=.*$/PGVERSION=%{version}/' -e 's/^PGSQLMAJORVERSION=.*$/PGSQLMAJORVERSION=%{pgmajorversion}/' <%{SOURCE1} > %{oname}.init
 install -m 755 %{oname}.init %{buildroot}/etc/rc.d/init.d/%{oname}-%{majorversion}
 
 %if %pam

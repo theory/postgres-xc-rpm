@@ -19,6 +19,7 @@
 PGVERSION=xxxx
 # PGMAJORVERSION is major version, e.g., 9.3 (this should match PG_VERSION)
 PGMAJORVERSION=`echo "$PGVERSION" | sed 's/^\([0-9]*\.[0-9]*\).*$/\1/'`
+PGSQLMAJORVERSION=xxxx
 PGPREVMAJORVERSION=1.0
 
 # Source function library.
@@ -89,7 +90,7 @@ start(){
 	then
 		# Check version of existing PGDATA
 
-		if [ x`cat "$PGDATA/PG_VERSION"` != x"$PGMAJORVERSION" ]
+		if [ x`cat "$PGDATA/PG_VERSION"` != x"$PGSQLMAJORVERSION" ]
 		then
 			SYSDOCDIR="(Your System's documentation directory)"
 			if [ -d "/usr/doc/postgresql-$PGVERSION" ]
