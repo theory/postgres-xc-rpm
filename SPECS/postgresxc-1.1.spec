@@ -47,6 +47,7 @@ Source5:	pg_config.h
 Source6:	README.rpm-dist
 Source7:	ecpg_config.h
 Source8:	%{oname}.pam
+Source9:	postgresgtm.init
 
 Patch1:		rpm-pgxc.patch
 Patch2:		%{oname}-logging.patch
@@ -399,6 +400,8 @@ esac
 install -d %{buildroot}/etc/rc.d/init.d
 sed -e 's/^PGVERSION=.*$/PGVERSION=%{version}/' -e 's/^PGSQLMAJORVERSION=.*$/PGSQLMAJORVERSION=%{pgmajorversion}/' <%{SOURCE1} > %{oname}.init
 install -m 755 %{oname}.init %{buildroot}/etc/rc.d/init.d/%{oname}-%{majorversion}
+sed -e 's/^PGVERSION=.*$/PGVERSION=%{version}/' <%{SOURCE9} > postgresgtm.init
+install -m 755 postgresgtm.init %{buildroot}/etc/rc.d/init.d/postgresgtm-%{majorversion}
 
 %if %pam
 install -d %{buildroot}/etc/pam.d
@@ -500,6 +503,7 @@ chmod 0700 /var/log/%{sname}
 
 %post server
 chkconfig --add %{oname}-%{majorversion}
+chkconfig --add postgresgtm-%{majorversion}
 /sbin/ldconfig
 # postgres' .bash_profile.
 # We now don't install .bash_profile as we used to in pre 9.0. Instead, use cat,
@@ -796,6 +800,7 @@ fi
 %files server -f pg_server.lst
 %defattr(-,root,root)
 %config(noreplace) /etc/rc.d/init.d/%{oname}-%{majorversion}
+%config(noreplace) /etc/rc.d/init.d/postgresgtm-%{majorversion}
 %if %pam
 %config(noreplace) /etc/pam.d/%{oname}%{packageversion}
 %endif

@@ -12,7 +12,7 @@
 # is not the same as the name of the subsystem (postgresxc)
 
 # Version 1.1. David Wheeler <david@justatheory.com>
-# Based on Postgres-XC script by Devrim Gunduz <devrim@gunduz.org>.
+# Based on PostgreSQL script by Devrim Gunduz <devrim@gunduz.org>.
 
 # PGXCVERSION is the full package version, e.g., 1.1.0
 # Note: the specfile inserts the correct value during package build
