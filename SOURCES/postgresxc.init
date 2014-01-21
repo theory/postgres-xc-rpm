@@ -17,9 +17,9 @@
 # PGXCVERSION is the full package version, e.g., 1.1.0
 # Note: the specfile inserts the correct value during package build
 PGVERSION=xxxx
-# PGMAJORVERSION is major version, e.g., 9.3 (this should match PG_VERSION)
+# PGMAJORVERSION is major version, e.g., 1.1 (this should match PG_VERSION)
 PGMAJORVERSION=`echo "$PGVERSION" | sed 's/^\([0-9]*\.[0-9]*\).*$/\1/'`
-PGSQLMAJORVERSION=xxxx
+PGSQLMAJORVERSION=xxxx # this should match PG_VERSION
 PGPREVMAJORVERSION=1.0
 
 # Source function library.
@@ -93,26 +93,26 @@ start(){
 		if [ x`cat "$PGDATA/PG_VERSION"` != x"$PGSQLMAJORVERSION" ]
 		then
 			SYSDOCDIR="(Your System's documentation directory)"
-			if [ -d "/usr/doc/postgresql-$PGVERSION" ]
+			if [ -d "/usr/doc/postgresxc-$PGVERSION" ]
 			then
 				SYSDOCDIR=/usr/doc
 			fi
-			if [ -d "/usr/share/doc/postgresql-$PGVERSION" ]
+			if [ -d "/usr/share/doc/postgresxc-$PGVERSION" ]
 			then
 				SYSDOCDIR=/usr/share/doc
 			fi
-			if [ -d "/usr/doc/packages/postgresql-$PGVERSION" ]
+			if [ -d "/usr/doc/packages/postgresxc-$PGVERSION" ]
 			then
 				SYSDOCDIR=/usr/doc/packages
 			fi
-			if [ -d "/usr/share/doc/packages/postgresql-$PGVERSION" ]
+			if [ -d "/usr/share/doc/packages/postgresxc-$PGVERSION" ]
 			then
 				SYSDOCDIR=/usr/share/doc/packages
 			fi
 			echo
 			echo $"An old version of the database format was found."
-			echo $"You need to upgrade the data format before using PostgreSQL."
-			echo $"See $SYSDOCDIR/postgresql-$PGVERSION/README.rpm-dist for more information."
+			echo $"You need to upgrade the data format before using Postgres-XC."
+			echo $"See $SYSDOCDIR/postgresxc-$PGVERSION/README.rpm-dist for more information."
 			exit 1
 		fi
 	else
@@ -220,19 +220,19 @@ initdb(){
 upgrade(){
 
 # The second parameter is the new database version, i.e. $PGMAJORVERSION in this case.
-# Use  "postgresql-$PGMAJORVERSION" service, if not specified.
+# Use  "postgresxc-$PGMAJORVERSION" service, if not specified.
 INIT_SCRIPT="$2"
 if [ x"$INIT_SCRIPT" = x ]
 then
-    INIT_SCRIPT=postgresql-$PGMAJORVERSION
+    INIT_SCRIPT=postgresxc-$PGMAJORVERSION
 fi
 
 # The third parameter is the old database version, i.e. $PGPREVMAJORVERSION in this case.
-# Use  "postgresql-$PGPREVMAJORVERSION" service, if not specified.
+# Use  "postgresxc-$PGPREVMAJORVERSION" service, if not specified.
 OLD_INIT_SCRIPT="$3"
 if [ x"$OLD_INIT_SCRIPT" = x ]
 then
-    OLD_INIT_SCRIPT=postgresql-$PGPREVMAJORVERSION
+    OLD_INIT_SCRIPT=postgresxc-$PGPREVMAJORVERSION
 fi
 
 # Find the init script of the new version:
@@ -245,22 +245,22 @@ fi
 if [ ! -f "/etc/init.d/${OLD_INIT_SCRIPT}" ]
 then
 	echo "Could not find init script /etc/init.d/${OLD_INIT_SCRIPT}"
-	echo "Please install postgresql91-server RPM first."
+	echo "Please install postgresxc91-server RPM first."
 	exit
 fi
 
 # Get port number and data directory of the old instance from the init script
-OLDPGDATA=` sed -n 's/^PGDATA=//p' /etc/init.d/postgresql-$PGPREVMAJORVERSION`
-OLDPGPORT=`sed -n 's/^PGPORT=//p' /etc/init.d/postgresql-$PGPREVMAJORVERSION`
+OLDPGDATA=` sed -n 's/^PGDATA=//p' /etc/init.d/postgresxc-$PGPREVMAJORVERSION`
+OLDPGPORT=`sed -n 's/^PGPORT=//p' /etc/init.d/postgresxc-$PGPREVMAJORVERSION`
 
 # Get port number and data directory of the new instance from the init script
-NEWPGDATA=` sed -n 's/^PGDATA=//p' /etc/init.d/postgresql-$PGMAJORVERSION`
-NEWPGPORT=`sed -n 's/^PGPORT=//p' /etc/init.d/postgresql-$PGMAJORVERSION`
+NEWPGDATA=` sed -n 's/^PGDATA=//p' /etc/init.d/postgresxc-$PGMAJORVERSION`
+NEWPGPORT=`sed -n 's/^PGPORT=//p' /etc/init.d/postgresxc-$PGMAJORVERSION`
 
 if [ ! -x "$PGENGINE/pg_upgrade" ]
     then
 	echo
-	echo $"Please install the postgresql92-contrib RPM for pg_upgrade command."
+	echo $"Please install the postgresxc$PGSQLMAJORVERSION-contrib RPM for pg_upgrade command."
 	echo
         exit 5
 fi
