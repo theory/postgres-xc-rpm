@@ -44,7 +44,7 @@ performing a major version update. This is not needed for minor version
 updates.
 
 SERVER QUICKSTART
------------------
+-----------------------------------------------------------------------------
 For a fresh installation of postgresxc11-server, you will need to initialize
 the cluster first. Run:
 
@@ -65,7 +65,7 @@ component rather than a data node:
    PGCOMPONENT=coordinator
 
 GTM QUICKSTART
---------------
+-----------------------------------------------------------------------------
 If you want to run a GTM, first you'll need to install postgresxc11-gtm, and
 then initialize it:
 
@@ -84,7 +84,7 @@ configuration, especially if you need to start a GTM proxy rather than a GTM:
     PGGTM=gtm_proxy
 
 GTM & SERVER CONFIGURATION
---------------------------
+-----------------------------------------------------------------------------
 The file /var/lib/pgxc/1.1/.bash_profile is packaged to help with the
 setting of environment variables. You may edit this file, and it won't be
 overwritten during an upgrade.  However, enhancements and bugfixes may
