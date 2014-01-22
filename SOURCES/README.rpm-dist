@@ -43,9 +43,10 @@ must dump, upgrade, initdb, and restore your data if you are
 performing a major version update. This is not needed for minor version
 updates.
 
-QUICKSTART (note that this requires postgresxc11-server installed)
------------------------------------------------------------------------------
-For a fresh installation, you will need to initialize the cluster first. Run:
+SERVER QUICKSTART
+-----------------
+For a fresh installation of postgresxc11-server, you will need to initialize
+the cluster first. Run:
 
     service postgresxc-1.1 initbd
 
@@ -63,7 +64,10 @@ component rather than a data node:
 
    PGCOMPONENT=coordinator
 
-If you want to run a GTM, first you'll need to initialize it:
+GTM QUICKSTART
+--------------
+If you want to run a GTM, first you'll need to install postgresxc11-gtm, and
+then initialize it:
 
     service postgresgtm-1.1 initgtm
 
@@ -79,6 +83,8 @@ configuration, especially if you need to start a GTM proxy rather than a GTM:
 
     PGGTM=gtm_proxy
 
+GTM & SERVER CONFIGURATION
+--------------------------
 The file /var/lib/pgxc/1.1/.bash_profile is packaged to help with the
 setting of environment variables. You may edit this file, and it won't be
 overwritten during an upgrade.  However, enhancements and bugfixes may
@@ -144,6 +150,7 @@ The RPMset is packaged in the following subpackages:
 
 postgresxc11:           Key clients and libraries, and documentation
 postgresxc11-server:    Server executables and data files
+postgresxc11-gtm:       GTM executables and configuration files
 postgresxc11-devel:     Development libraries and include files
 postgresxc11-test:      The regression tests and associated files
 postgresxc11-libs:      Client shared libraries

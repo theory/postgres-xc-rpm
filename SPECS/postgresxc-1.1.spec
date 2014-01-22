@@ -141,7 +141,7 @@ Provides:	libpq.so
 Provides:	postgresxc-libs
 
 %description libs
-The postgresxc93-libs package provides the essential shared libraries for any
+The postgresxc11-libs package provides the essential shared libraries for any
 Postgres-XC client program or interface. You will need to install this package
 to use any other Postgres-XC package or any clients that need to connect to a
 Postgres-XC server.
@@ -155,15 +155,33 @@ Provides:	postgresxc-server
 
 %description server
 
-The postgresxc93-server package includes the programs needed to create and run
+The postgresxc11-server package includes the programs needed to create and run
 a Postgres-XC server, which will in turn allow you to create and maintain
 Postgres-XC databases. Postgres-XC is an open source project to provide a
 write-scalable, synchronous multi-master, transparent PostgreSQL cluster
 solution. It is a collection if tightly coupled database components which can
 be installed in more than one hardware or virtual machines. You should install
-postgresxc93-server if you want to create and maintain your own Postgres-XC
+postgresxc11-server if you want to create and maintain your own Postgres-XC
 databases and/or your own Postgres-XC server. You also need to install the
 postgresxc package.
+
+%package gtm
+Summary:	The programs needed to create and run a Postgres-XC GTM
+Group:		Applications/Databases
+Requires:	/usr/sbin/useradd /sbin/chkconfig
+Requires:	%{name} = %{version}-%{release}
+Provides:	postgresxc-gtm
+
+%description gtm
+
+The postgresxc11-gtm package includes the programs needed to create and run a
+Postgres-XC global transaction manager (GTM) or GTM proxy. Postgres-XC is an
+open source project to provide a write-scalable, synchronous multi-master,
+transparent PostgreSQL cluster solution. It is a collection if tightly coupled
+database components which can be installed in more than one hardware or
+virtual machines. You should install postgresxc11-gtm if you want to create
+and maintain your own Postgres-XC GTM. You also need to install the postgresxc
+package.
 
 %package docs
 Summary:	Extra documentation for Postgres-XC
@@ -171,7 +189,7 @@ Group:		Applications/Databases
 Provides:	postgresxc-docs
 
 %description docs
-The postgresxc93-docs package includes the SGML source for the Postgres-XC
+The postgresxc11-docs package includes the SGML source for the Postgres-XC
 documentation as well as some extra documentation. Install this package if you
 want to help with the Postgres-XC documentation project, or if you want to
 generate printed documentation. This package also includes HTML version of the
@@ -184,7 +202,7 @@ Requires:	%{name} = %{version}
 Provides:	postgresxc-contrib
 
 %description contrib
-The postgresxc93-contrib package contains contributed packages that are
+The postgresxc11-contrib package contains contributed packages that are
 included in the Postgres-XC distribution.
 
 %package devel
@@ -194,7 +212,7 @@ Requires:	%{name} = %{version}-%{release}
 Provides:	postgresxc-devel
 
 %description devel
-The postgresxc93-devel package contains the header files and libraries needed
+The postgresxc11-devel package contains the header files and libraries needed
 to compile C or C++ applications which will directly interact with a
 Postgres-XC database management server and the ecpg Embedded C Postgres
 preprocessor. You need to install this package if you want to develop
@@ -213,7 +231,7 @@ Provides:	postgresxc-plperl
 %description plperl
 Postgres-XC is an open source project to provide a write-scalable, synchronous
 multi-master, transparent PostgresSQL cluster solution. The
-postgresxc93-plperl package contains the PL/Perl language for the backend.
+postgresxc11-plperl package contains the PL/Perl language for the backend.
 %endif
 
 %if %plpython
@@ -227,7 +245,7 @@ Provides:	postgresxc-plpython
 %description plpython
 Postgres-XC is an open source project to provide a write-scalable, synchronous
 multi-master, transparent PostgresSQL cluster solution. The
-postgresxc93-plpython package contains the PL/Python language for the backend.
+postgresxc11-plpython package contains the PL/Python language for the backend.
 %endif
 
 %if %pltcl
@@ -240,7 +258,7 @@ Provides:	postgresxc-pltcl
 
 %description pltcl
 Postgres-XC is an open source project to provide a write-scalable, synchronous
-multi-master, transparent PostgresSQL cluster solution. The postgresxc93-pltcl
+multi-master, transparent PostgresSQL cluster solution. The postgresxc11-pltcl
 package contains the PL/Tcl language for the backend.
 %endif
 
@@ -410,6 +428,7 @@ install -m 644 %{SOURCE8} %{buildroot}/etc/pam.d/%{oname}%{packageversion}
 
 # PGDATA needs removal of group and world permissions due to pg_pwd hole.
 install -d -m 700 %{buildroot}/var/lib/%{sname}/%{majorversion}/data
+install -d -m 700 %{buildroot}/var/lib/%{sname}/%{majorversion}/gtm
 
 # backups of data go here...
 install -d -m 700 %{buildroot}/var/lib/%{sname}/%{majorversion}/backups
@@ -446,7 +465,7 @@ mkdir -p %{buildroot}%{pgbaseinstdir}/share/doc/html
 mv doc/src/sgml/html doc
 mkdir -p %{buildroot}%{pgbaseinstdir}/share/man/
 mv doc/src/sgml/man1 doc/src/sgml/man3 doc/src/sgml/man7  %{buildroot}%{pgbaseinstdir}/share/man/
-rm -rf %{buildroot}%{_docdir}/%{sname}
+%{__rm} -rf %{buildroot}%{_docdir}/%{sname}
 
 # Fix some file locations.
 
@@ -454,6 +473,7 @@ rm -rf %{buildroot}%{_docdir}/%{sname}
 cp /dev/null main.lst
 cp /dev/null libs.lst
 cp /dev/null server.lst
+cp /dev/null gtm.lst
 cp /dev/null devel.lst
 cp /dev/null plperl.lst
 cp /dev/null pltcl.lst
@@ -492,6 +512,7 @@ cat libpq5-%{pgmajorversion}.lang > pg_libpq5.lst
 cat pg_config-%{pgmajorversion}.lang ecpg-%{pgmajorversion}.lang ecpglib6-%{pgmajorversion}.lang > pg_devel.lst
 cat initdb-%{pgmajorversion}.lang pg_ctl-%{pgmajorversion}.lang psql-%{pgmajorversion}.lang pg_dump-%{pgmajorversion}.lang pg_basebackup-%{pgmajorversion}.lang pgscripts-%{pgmajorversion}.lang > pg_main.lst
 cat postgres-%{pgmajorversion}.lang pg_resetxlog-%{pgmajorversion}.lang pg_controldata-%{pgmajorversion}.lang plpgsql-%{pgmajorversion}.lang > pg_server.lst
+touch pg_gtm.lst # Change if l10n ever added for GTM.
 
 %pre server
 %{_sbindir}/groupadd -g %{gid} %{gname} >/dev/null 2>&1 || :
@@ -503,7 +524,6 @@ chmod 0700 /var/log/%{sname}
 
 %post server
 chkconfig --add %{oname}-%{majorversion}
-chkconfig --add postgresgtm-%{majorversion}
 /sbin/ldconfig
 # postgres' .bash_profile.
 # We now don't install .bash_profile as we used to in pre 9.0. Instead, use cat,
@@ -523,6 +543,37 @@ fi
 /sbin/ldconfig
 if [ $1 -ge 1 ]; then
   /sbin/service %{oname}-%{majorversion} condrestart >/dev/null 2>&1
+fi
+
+%pre gtm
+%{_sbindir}/groupadd -g %{gid} %{gname} >/dev/null 2>&1 || :
+%{_sbindir}/useradd -M -N -g %{gname} -d %{prefix}/%{name} \
+    -c "Postgres-XC Server" -u %{uid} %{uname} >/dev/null 2>&1 || :
+touch /var/log/%{sname}
+chown %{uname}:%{gname} /var/log/%{sname}
+chmod 0700 /var/log/%{sname}
+
+%post gtm
+chkconfig --add postgresgtm-%{majorversion}
+/sbin/ldconfig
+# postgres' .bash_profile.
+# We now don't install .bash_profile as we used to in pre 9.0. Instead, use cat,
+# so that package manager will be happy during upgrade to new major version.
+echo "[ -f /etc/profile ] && source /etc/profile
+PGDATA=/var/lib/%{sname}/%{majorversion}/gtm
+export PGDATA" >  /var/lib/%{sname}/.bash_profile
+chown %{uname}: /var/lib/%{sname}/.bash_profile
+
+%preun gtm
+if [ $1 = 0 ] ; then
+    /sbin/service postgresgtm-%{majorversion} condstop >/dev/null 2>&1
+    chkconfig --del postgresgtm-%{majorversion}
+fi
+
+%postun gtm
+/sbin/ldconfig
+if [ $1 -ge 1 ]; then
+  /sbin/service postgresgtm-%{majorversion} condrestart >/dev/null 2>&1
 fi
 
 %if %plperl
@@ -800,7 +851,6 @@ fi
 %files server -f pg_server.lst
 %defattr(-,root,root)
 %config(noreplace) /etc/rc.d/init.d/%{oname}-%{majorversion}
-%config(noreplace) /etc/rc.d/init.d/postgresgtm-%{majorversion}
 %if %pam
 %config(noreplace) /etc/pam.d/%{oname}%{packageversion}
 %endif
@@ -811,10 +861,6 @@ fi
 %{pgbaseinstdir}/bin/pg_resetxlog
 %{pgbaseinstdir}/bin/postgres
 %{pgbaseinstdir}/bin/postmaster
-%{pgbaseinstdir}/bin/gtm
-%{pgbaseinstdir}/bin/gtm_ctl
-%{pgbaseinstdir}/bin/gtm_proxy
-%{pgbaseinstdir}/bin/initgtm
 %{pgbaseinstdir}/bin/makesgml
 %{pgbaseinstdir}/bin/pgxc_clean
 %{pgbaseinstdir}/share/man/man1/initdb.*
@@ -856,6 +902,23 @@ fi
 %{pgbaseinstdir}/share/information_schema.sql
 %{pgbaseinstdir}/share/snowball_create.sql
 %{pgbaseinstdir}/share/sql_features.txt
+
+%files gtm -f pg_gtm.lst
+%defattr(-,root,root)
+%config(noreplace) /etc/rc.d/init.d/postgresgtm-%{majorversion}
+%attr (755,root,root) %dir /etc/sysconfig/%{sname}
+%{pgbaseinstdir}/bin/gtm
+%{pgbaseinstdir}/bin/gtm_ctl
+%{pgbaseinstdir}/bin/gtm_proxy
+%{pgbaseinstdir}/bin/initgtm
+%{pgbaseinstdir}/bin/postgres
+%{pgbaseinstdir}/share/man/man1/postgres.*
+%{pgbaseinstdir}/share/gtm*.sample
+
+%attr(700,postgres,postgres) %dir /var/lib/%{sname}
+%attr(700,postgres,postgres) %dir /var/lib/%{sname}/%{majorversion}
+%attr(700,postgres,postgres) %dir /var/lib/%{sname}/%{majorversion}/gtm
+%attr(700,postgres,postgres) %dir /var/lib/%{sname}/%{majorversion}/backups
 
 %files devel -f pg_devel.lst
 %defattr(-,root,root)
