@@ -3,5 +3,7 @@
 XCVERSION=1.1
 
 grep -i Requires: SPECS/postgresxc-$XCVERSION.spec | awk '{print $2}' | uniq | grep -v '{name}' | xargs sudo yum install -y || exit ?
-spectool -S -C SOURCES -g SPECS/postgresxc-$XCVERSION.spec || exit $?
+if [ ! -e "SOURCES/pgxc-v$XCVERSION.tar.gz" ]; then
+    spectool -S -C SOURCES -g SPECS/postgresxc-$XCVERSION.spec || exit $?
+fi
 rpmbuild -ba --define "_topdir `pwd`" SPECS/postgresxc-$XCVERSION.spec || exit $?
