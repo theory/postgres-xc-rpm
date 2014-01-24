@@ -357,7 +357,6 @@ export LIBNAME=%{_lib}
     --docdir=%{_docdir}/%{sname}
 
 make %{?_smp_mflags} all
-make %{?_smp_mflags} -C doc all
 make %{?_smp_mflags} -C contrib all
 %if %uuid
 make %{?_smp_mflags} -C contrib/uuid-ossp all
@@ -459,12 +458,11 @@ install -m 700 %{SOURCE2} %{buildroot}%{pgbaseinstdir}/share/
 %endif
 
 # Fix some more documentation
-# gzip doc/internals.ps
 cp %{SOURCE6} README.rpm-dist
-mkdir -p %{buildroot}%{pgbaseinstdir}/share/doc/html
-mv doc/src/sgml/html doc
+mkdir -p %{buildroot}%{pgbaseinstdir}/share/doc-xc/html
+mv doc-xc/src/sgml/html doc
 mkdir -p %{buildroot}%{pgbaseinstdir}/share/man/
-mv doc/src/sgml/man1 doc/src/sgml/man3 doc/src/sgml/man7  %{buildroot}%{pgbaseinstdir}/share/man/
+mv doc-xc/src/sgml/man1 doc-xc/src/sgml/man3 doc-xc/src/sgml/man7  %{buildroot}%{pgbaseinstdir}/share/man/
 %{__rm} -rf %{buildroot}%{_docdir}/%{sname}
 
 # Fix some file locations.
@@ -512,7 +510,7 @@ cat libpq5-%{pgmajorversion}.lang > pg_libpq5.lst
 cat pg_config-%{pgmajorversion}.lang ecpg-%{pgmajorversion}.lang ecpglib6-%{pgmajorversion}.lang > pg_devel.lst
 cat initdb-%{pgmajorversion}.lang pg_ctl-%{pgmajorversion}.lang psql-%{pgmajorversion}.lang pg_dump-%{pgmajorversion}.lang pg_basebackup-%{pgmajorversion}.lang pgscripts-%{pgmajorversion}.lang > pg_main.lst
 cat postgres-%{pgmajorversion}.lang pg_resetxlog-%{pgmajorversion}.lang pg_controldata-%{pgmajorversion}.lang plpgsql-%{pgmajorversion}.lang > pg_server.lst
-touch pg_gtm.lst # Change if l10n ever added for GTM.
+cat postgres-%{pgmajorversion}.lang > pg_gtm.lst
 
 %pre server
 %{_sbindir}/groupadd -g %{gid} %{gname} >/dev/null 2>&1 || :
@@ -680,8 +678,8 @@ fi
 
 %files -f pg_main.lst
 %defattr(-,root,root)
-%doc doc/KNOWN_BUGS doc/MISSING_FEATURES
-%doc COPYRIGHT doc/bug.template
+%doc doc-xc/KNOWN_BUGS doc-xc/MISSING_FEATURES
+%doc COPYRIGHT doc-xc/bug.template
 %doc README.rpm-dist
 %{pgbaseinstdir}/bin/clusterdb
 %{pgbaseinstdir}/bin/createdb
@@ -914,6 +912,11 @@ fi
 %{pgbaseinstdir}/bin/postgres
 %{pgbaseinstdir}/share/man/man1/postgres.*
 %{pgbaseinstdir}/share/gtm*.sample
+%{pgbaseinstdir}/share/man/man1/gtm.*
+%{pgbaseinstdir}/share/man/man1/gtm_ctl.*
+%{pgbaseinstdir}/share/man/man1/gtm_proxy.*
+%{pgbaseinstdir}/share/man/man1/initgtm.*
+%{pgbaseinstdir}/share/man/man1/postgres.*
 
 %attr(700,postgres,postgres) %dir /var/lib/%{sname}
 %attr(700,postgres,postgres) %dir /var/lib/%{sname}/%{majorversion}
