@@ -514,7 +514,7 @@ cat postgres-%{pgmajorversion}.lang > pg_gtm.lst
 
 %pre server
 %{_sbindir}/groupadd -g %{gid} %{gname} >/dev/null 2>&1 || :
-%{_sbindir}/useradd -M -N -g %{gname} -d %{prefix}/%{name} \
+%{_sbindir}/useradd -M -N -g %{gname} -d /var/lib/%{sname} \
     -c "Postgres-XC Server" -u %{uid} %{uname} >/dev/null 2>&1 || :
 touch /var/log/%{sname}
 chown %{uname}:%{gname} /var/log/%{sname}
