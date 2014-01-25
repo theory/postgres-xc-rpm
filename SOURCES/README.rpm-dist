@@ -58,8 +58,8 @@ need to start Postgres-XC. Again as root, run:
 This command will start a data node postmaster that will listen on localhost
 and Unix socket 5432 only. Edit /var/lib/pgxc/1.1/data/postgresql.conf and
 pg_hba.conf if you want to allow remote access -- see the section on Grand
-Unified Configuration. Create or edit /etc/sysconfig/pgxc/postgresxc to tweak
-the startup configuration, especially if you need to start a coordinator
+Unified Configuration. Create or edit /etc/sysconfig/pgxc/postgresxc-1.1 to
+tweak the startup configuration, especially if you need to start a coordinator
 component rather than a data node:
 
    PGCOMPONENT=coordinator
@@ -78,7 +78,7 @@ to start the GTM. Again as root, run:
 
 This command will start a GTM that will listen on localhost and Unix socket
 6666 only. Edit /var/lib/pgxc/1.1/gtm/gtm.conf to tweak the configuration.
-Create or edit /etc/sysconfig/pgxc/postgresgtm to tweak the GTM startup
+Create or edit /etc/sysconfig/pgxc/postgresgtm-1.1 to tweak the GTM startup
 configuration, especially if you need to start a GTM proxy rather than a GTM:
 
     PGGTM=gtm_proxy
@@ -219,13 +219,14 @@ As an example, let us create a coordinator cluster called, creatively enough,
 
             ln postgresxc-1.1 coordinator-1.1
 
-2.)     create a file in /etc/sysconfig/pgxc named coordinator. This file is a
-        shell script -- typically you would define PGDATA, PGPORT, PGOPTS, and
-        PGCOMPONENT here. Since $PGDATA/postgresql.conf will override many of
-        these settings, except PGDATA, you might be surprised on startup. The
-        exception is PGCOMPONENT, which, since we're setting up a coordinator,
-        should be set:
+2.)     create a file in /etc/sysconfig/pgxc named "coordinator-1.1". This file
+        is a shell script -- typically you would define PGDATA, PGPORT, PGOPTS,
+        and PGCOMPONENT here. Since $PGDATA/postgresql.conf will override many
+        of these settings, except PGDATA, you might be surprised on startup.
+        The exception is PGCOMPONENT, which, since we're setting up a
+        coordinator, should be set:
 
+            PGDATA=/path/to/coordinator/data
             PGCOMPONENT=coordinator
 
 3.)     create the target PGDATA.
