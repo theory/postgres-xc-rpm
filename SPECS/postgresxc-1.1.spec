@@ -33,7 +33,7 @@
 Summary:	Postgres-XC client programs and libraries
 Name:		%{oname}%{packageversion}
 Version:	%{majorversion}.0
-Release:	1iov%{?dist}
+Release:	1PGDG%{?dist}
 License:	PostgreSQL
 Group:		Applications/Databases
 Url:		http://postgres-xc.sourceforge.net/
