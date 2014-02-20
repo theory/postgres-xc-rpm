@@ -7,6 +7,7 @@
 %define majorversion 1.1
 %define packageversion 11
 %define pgmajorversion 9.2
+%define priority %{packageversion}0
 %define oname postgresxc
 %define sname pgxc
 %define	pgbaseinstdir	/usr/%{sname}-%{majorversion}
@@ -33,7 +34,7 @@
 Summary:	Postgres-XC client programs and libraries
 Name:		%{oname}%{packageversion}
 Version:	%{majorversion}.0
-Release:	2PGDG%{?dist}
+Release:	3PGDG%{?dist}
 License:	PostgreSQL
 Group:		Applications/Databases
 Url:		http://postgres-xc.sourceforge.net/
@@ -596,37 +597,37 @@ chown -R %{uname}:%{gname} /usr/share/%{sname}/test >/dev/null 2>&1 || :
 
 # Create alternatives entries for common binaries and man files
 %post
-%{_sbindir}/update-alternatives --install /usr/bin/psql %{sname}-psql %{pgbaseinstdir}/bin/psql 930
-%{_sbindir}/update-alternatives --install /usr/bin/clusterdb  %{sname}-clusterdb  %{pgbaseinstdir}/bin/clusterdb 930
-%{_sbindir}/update-alternatives --install /usr/bin/createdb   %{sname}-createdb   %{pgbaseinstdir}/bin/createdb 930
-%{_sbindir}/update-alternatives --install /usr/bin/createlang %{sname}-createlang %{pgbaseinstdir}/bin/createlang 930
-%{_sbindir}/update-alternatives --install /usr/bin/createuser %{sname}-createuser %{pgbaseinstdir}/bin/createuser 930
-%{_sbindir}/update-alternatives --install /usr/bin/dropdb     %{sname}-dropdb     %{pgbaseinstdir}/bin/dropdb 930
-%{_sbindir}/update-alternatives --install /usr/bin/droplang   %{sname}-droplang   %{pgbaseinstdir}/bin/droplang 930
-%{_sbindir}/update-alternatives --install /usr/bin/dropuser   %{sname}-dropuser   %{pgbaseinstdir}/bin/dropuser 930
-%{_sbindir}/update-alternatives --install /usr/bin/pg_basebackup    %{sname}-pg_basebackup    %{pgbaseinstdir}/bin/pg_basebackup 930
-%{_sbindir}/update-alternatives --install /usr/bin/pg_dump    %{sname}-pg_dump    %{pgbaseinstdir}/bin/pg_dump 930
-%{_sbindir}/update-alternatives --install /usr/bin/pg_dumpall %{sname}-pg_dumpall %{pgbaseinstdir}/bin/pg_dumpall 930
-%{_sbindir}/update-alternatives --install /usr/bin/pg_restore %{sname}-pg_restore %{pgbaseinstdir}/bin/pg_restore 930
-%{_sbindir}/update-alternatives --install /usr/bin/reindexdb  %{sname}-reindexdb  %{pgbaseinstdir}/bin/reindexdb 930
-%{_sbindir}/update-alternatives --install /usr/bin/vacuumdb   %{sname}-vacuumdb   %{pgbaseinstdir}/bin/vacuumdb 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/clusterdb.1  %{sname}-clusterdbman     %{pgbaseinstdir}/share/man/man1/clusterdb.1 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/createdb.1   %{sname}-createdbman   %{pgbaseinstdir}/share/man/man1/createdb.1 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/createlang.1 %{sname}-createlangman    %{pgbaseinstdir}/share/man/man1/createlang.1 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/createuser.1 %{sname}-createuserman    %{pgbaseinstdir}/share/man/man1/createuser.1 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/dropdb.1     %{sname}-dropdbman        %{pgbaseinstdir}/share/man/man1/dropdb.1 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/droplang.1   %{sname}-droplangman   %{pgbaseinstdir}/share/man/man1/droplang.1 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/dropuser.1   %{sname}-dropuserman   %{pgbaseinstdir}/share/man/man1/dropuser.1 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/pg_basebackup.1    %{sname}-pg_basebackupman    %{pgbaseinstdir}/share/man/man1/pg_basebackup.1 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/pg_dump.1    %{sname}-pg_dumpman    %{pgbaseinstdir}/share/man/man1/pg_dump.1 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/pg_dumpall.1 %{sname}-pg_dumpallman    %{pgbaseinstdir}/share/man/man1/pg_dumpall.1 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/pg_restore.1 %{sname}-pg_restoreman    %{pgbaseinstdir}/share/man/man1/pg_restore.1 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/psql.1       %{sname}-psqlman          %{pgbaseinstdir}/share/man/man1/psql.1 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/reindexdb.1  %{sname}-reindexdbman     %{pgbaseinstdir}/share/man/man1/reindexdb.1 930
-%{_sbindir}/update-alternatives --install /usr/share/man/man1/vacuumdb.1   %{sname}-vacuumdbman   %{pgbaseinstdir}/share/man/man1/vacuumdb.1 930
+%{_sbindir}/update-alternatives --install /usr/bin/psql %{sname}-psql %{pgbaseinstdir}/bin/psql %{priority}
+%{_sbindir}/update-alternatives --install /usr/bin/clusterdb  %{sname}-clusterdb  %{pgbaseinstdir}/bin/clusterdb %{priority}
+%{_sbindir}/update-alternatives --install /usr/bin/createdb   %{sname}-createdb   %{pgbaseinstdir}/bin/createdb %{priority}
+%{_sbindir}/update-alternatives --install /usr/bin/createlang %{sname}-createlang %{pgbaseinstdir}/bin/createlang %{priority}
+%{_sbindir}/update-alternatives --install /usr/bin/createuser %{sname}-createuser %{pgbaseinstdir}/bin/createuser %{priority}
+%{_sbindir}/update-alternatives --install /usr/bin/dropdb     %{sname}-dropdb     %{pgbaseinstdir}/bin/dropdb %{priority}
+%{_sbindir}/update-alternatives --install /usr/bin/droplang   %{sname}-droplang   %{pgbaseinstdir}/bin/droplang %{priority}
+%{_sbindir}/update-alternatives --install /usr/bin/dropuser   %{sname}-dropuser   %{pgbaseinstdir}/bin/dropuser %{priority}
+%{_sbindir}/update-alternatives --install /usr/bin/pg_basebackup    %{sname}-pg_basebackup    %{pgbaseinstdir}/bin/pg_basebackup %{priority}
+%{_sbindir}/update-alternatives --install /usr/bin/pg_dump    %{sname}-pg_dump    %{pgbaseinstdir}/bin/pg_dump %{priority}
+%{_sbindir}/update-alternatives --install /usr/bin/pg_dumpall %{sname}-pg_dumpall %{pgbaseinstdir}/bin/pg_dumpall %{priority}
+%{_sbindir}/update-alternatives --install /usr/bin/pg_restore %{sname}-pg_restore %{pgbaseinstdir}/bin/pg_restore %{priority}
+%{_sbindir}/update-alternatives --install /usr/bin/reindexdb  %{sname}-reindexdb  %{pgbaseinstdir}/bin/reindexdb %{priority}
+%{_sbindir}/update-alternatives --install /usr/bin/vacuumdb   %{sname}-vacuumdb   %{pgbaseinstdir}/bin/vacuumdb %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/clusterdb.1  %{sname}-clusterdbman     %{pgbaseinstdir}/share/man/man1/clusterdb.1 %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/createdb.1   %{sname}-createdbman   %{pgbaseinstdir}/share/man/man1/createdb.1 %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/createlang.1 %{sname}-createlangman    %{pgbaseinstdir}/share/man/man1/createlang.1 %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/createuser.1 %{sname}-createuserman    %{pgbaseinstdir}/share/man/man1/createuser.1 %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/dropdb.1     %{sname}-dropdbman        %{pgbaseinstdir}/share/man/man1/dropdb.1 %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/droplang.1   %{sname}-droplangman   %{pgbaseinstdir}/share/man/man1/droplang.1 %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/dropuser.1   %{sname}-dropuserman   %{pgbaseinstdir}/share/man/man1/dropuser.1 %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/pg_basebackup.1    %{sname}-pg_basebackupman    %{pgbaseinstdir}/share/man/man1/pg_basebackup.1 %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/pg_dump.1    %{sname}-pg_dumpman    %{pgbaseinstdir}/share/man/man1/pg_dump.1 %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/pg_dumpall.1 %{sname}-pg_dumpallman    %{pgbaseinstdir}/share/man/man1/pg_dumpall.1 %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/pg_restore.1 %{sname}-pg_restoreman    %{pgbaseinstdir}/share/man/man1/pg_restore.1 %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/psql.1       %{sname}-psqlman          %{pgbaseinstdir}/share/man/man1/psql.1 %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/reindexdb.1  %{sname}-reindexdbman     %{pgbaseinstdir}/share/man/man1/reindexdb.1 %{priority}
+%{_sbindir}/update-alternatives --install /usr/share/man/man1/vacuumdb.1   %{sname}-vacuumdbman   %{pgbaseinstdir}/share/man/man1/vacuumdb.1 %{priority}
 
 %post libs
-%{_sbindir}/update-alternatives --install /etc/ld.so.conf.d/%{oname}-pgdg-libs.conf   %{sname}-ld-conf        %{pgbaseinstdir}/share/%{oname}-%{majorversion}-libs.conf 930
+%{_sbindir}/update-alternatives --install /etc/ld.so.conf.d/%{oname}-pgdg-libs.conf   %{sname}-ld-conf        %{pgbaseinstdir}/share/%{oname}-%{majorversion}-libs.conf %{priority}
 /sbin/ldconfig
 
 # Drop alternatives entries for common binaries and man files
@@ -975,5 +976,8 @@ fi
 %endif
 
 %changelog
+* Wed Feb 19 2014 David E. Wheeler <david@justatheory.com> - 1.1-PGDG
+- Fixed update-alternatives priority.
+
 * Fri Jan 17 2014 David E. Wheeler <david@justatheory.com> - 1.1-1PGDG
 - Initial cut for 1.1.
