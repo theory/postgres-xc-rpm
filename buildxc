@@ -1,9 +1,10 @@
 #!/bin/bash
 
-XCVERSION=1.1
-
-grep -i Requires: SPECS/postgresxc-$XCVERSION.spec | awk '{print $2}' | uniq | grep -v '{name}' | xargs sudo yum install -y || exit ?
-if [ ! -e "SOURCES/pgxc-v$XCVERSION.tar.gz" ]; then
-    spectool -S -C SOURCES -g SPECS/postgresxc-$XCVERSION.spec || exit $?
-fi
-rpmbuild -ba --define "_topdir `pwd`" SPECS/postgresxc-$XCVERSION.spec || exit $?
+for XCVERSION in `grep -m 1 majorversion SPECS/*.spec | awk '{print $3}'`; do
+    echo Building Postgres-XC $XCVERSION
+    grep -i Requires: SPECS/postgresxc-$XCVERSION.spec | awk '{print $2}' | uniq | grep -v '{name}' | xargs sudo yum install -y || exit $?
+    if [ ! -e "SOURCES/pgxc-v$XCVERSION.tar.gz" ]; then
+        spectool -S -C SOURCES -g SPECS/postgresxc-$XCVERSION.spec || exit $?
+    fi
+    rpmbuild -ba --define "_topdir `pwd`" SPECS/postgresxc-$XCVERSION.spec || exit $?
+done
